@@ -15,8 +15,6 @@ Route::middleware(['auth'])->group(function () {
     
    
     Route::resource('posts', PostController::class);
-
-    
     Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comment.store');
 });
 

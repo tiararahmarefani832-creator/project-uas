@@ -47,13 +47,13 @@ class User extends Authenticatable
         ];
     }
  
-    // Relasi ke Role
+    
     public function role()
     {
         return $this->belongsTo(Role::class);
     }
  
-    // Helper method untuk cek apakah user adalah admin
+    //untuk mengecek apakah user adalah admin
   public function isAdmin()
 {
     // Cari data role yang namanya 'admin'

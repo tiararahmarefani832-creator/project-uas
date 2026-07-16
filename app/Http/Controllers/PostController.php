@@ -10,44 +10,27 @@ class PostController extends Controller
 {
    public function __construct()
     {
-        // 1. User yang belum login tetap bisa LIHAT daftar mading (index) dan BACA LENGKAP (show)
+        // User yang belum login tetap bisa LIHAT daftar mading (index) dan BACA LENGKAP (show)
         $this->middleware('auth')->except(['index', 'show']);
 
-        // 2. PERUBAHAN DI SINI: Tambahkan 'index' agar user biasa bisa melihat halaman utama tanpa error "Bukan Admin"
+        // hanya admin yang bisa ubah,user hanya lihat
         $this->middleware('isAdmin')->except(['index', 'show']);
     }
 
 
-   public function index(\Illuminate\Http\Request $request)
+  public function index(Request $request)
 {
-    // 1. Ambil semua kategori dari database buat dipajang di tombol atas
-    $categories = \App\Models\Category::all(); 
+    // 1. Ambil data dengan filter kategori (jika ada)
+    $posts = Post::query();
 
-    // 2. Siapkan query untuk mengambil postingan mading
-    $query = \App\Models\Post::query();
-
-    // 3. JIKA ada tombol kategori yang diklik, saring beritanya berdasarkan ID kategori tersebut
     if ($request->has('category_id')) {
-        $query->where('category_id', $request->category_id);
+        $posts->where('category_id', $request->category_id);
     }
 
-    // 4. Ambil datanya dan urutkan dari yang terbaru
-    $posts = $query->latest()->get();
+    $posts = $posts->latest()->get();
+    $categories = Category::all();
 
-    // === LOGIKA BARU: Cek apakah user yang login saat ini adalah Admin ===
-    $isAdmin = false;
-    if (auth()->check()) {
-        // Cari data role yang namanya 'admin' di database seperti di middleware kamu
-        $adminRole = \App\Models\Role::where('name', 'admin')->first();
-        
-        // Jika ketemu dan role_id user sama dengan id role admin, set jadi true
-        if ($adminRole && auth()->user()->role_id == $adminRole->id) {
-            $isAdmin = true;
-        }
-    }
-
-    // 5. Kirim data posts, categories, dan status isAdmin ke halaman index
-    return view('posts.index', compact('posts', 'categories', 'isAdmin'));
+    return view('posts.index', compact('posts', 'categories'));
 }
     public function create()
     {
@@ -57,24 +40,23 @@ class PostController extends Controller
 
    public function store(Request $request)
 {
-    // 1. Validasi (Saran asdos dimasukin ke sini)
     $request->validate([
         'title' => 'required|string|max:255',
         'content' => 'required', 
         'category_id' => 'required|exists:categories,id', 
-        'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Tambahan validasi khusus foto
+        'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // validasi khusus foto
     ]);
 
-    // 2. Siapkan variabel untuk nama file (default null kalau tidak ada foto)
+    // variabel untuk nama file (default null kalau tidak ada foto)
     $namaFile = null;
 
-    // 3. Proses jika ada file yang diupload
+    // Proses jika ada file yang diupload
     if ($request->hasFile('image')) {
         $namaFile = time() . '.' . $request->image->extension();
         $request->image->move(public_path('images'), $namaFile);
     }
 
-    // 4. Simpan ke database
+    // Simpan ke database
     Post::create([
         'title' => $request->title,
         'description' => $request->content, 
@@ -109,10 +91,10 @@ class PostController extends Controller
 
     $post = Post::findOrFail($id);
     
-    // Default: pakai nama foto yang lama
+    // pakai nama foto yang lama
     $namaFile = $post->image; 
 
-    // Tapi kalau user masukin foto baru, baru kita ganti
+    // Tapi kalau user masukin foto baru, baru di ganti
     if ($request->hasFile('image')) {
         $namaFile = time() . '.' . $request->image->extension();
         $request->image->move(public_path('images'), $namaFile);

@@ -29,7 +29,7 @@
                         <!-- Kolom Email -->
                         <div class="mb-3">
                             <label for="email" class="form-label small fw-bold" style="color: #1e3a8a;">Email</label>
-                            <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus placeholder="Masukkan email kamu">
+                            <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus placeholder="Masukkan email anda">
                             
                             @error('email')
                                 <small class="text-danger d-block mt-1">
