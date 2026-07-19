@@ -12,9 +12,9 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        Category::create(['name' => '#Pengumuman']);
-        Category::create(['name' => '#Kegiatan']);
-        Category::create(['name' => '#Prestasi']);
+        Category::create(['name' => 'Pengumuman']);
+        Category::create(['name' => 'Kegiatan']);
+        Category::create(['name' => 'Prestasi']);
         category::create(['name' => 'Beasiswa']);
     }
 }
